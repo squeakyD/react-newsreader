@@ -1,10 +1,13 @@
 import React from "react";
+import { connect } from 'react-redux';
+
 import { Flex, Box, Heading } from "@chakra-ui/core";
 import { NewsSources } from "./NewsSources";
 import HeadlineView from "./HeadlineView";
 import ArticleView from "./ArticleView";
+import { fetchSources, fetchHeadlines } from "../redux/actions";
 
-export default class NewsViewer extends React.Component {
+class NewsViewer extends React.Component {
   constructor(props) {
     super(props)
 
@@ -17,10 +20,17 @@ export default class NewsViewer extends React.Component {
     this.headlineChanged = this.headlineChanged.bind(this);
   }
 
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch(fetchSources());
+  }
+
   sourceChanged(e) {
     const val = e.target.value;
     this.setState({ sourceId: val, article: null });
 
+    const { dispatch } = this.props;
+    dispatch(fetchHeadlines(val))
     console.log('Source id', val)
   }
 
@@ -33,14 +43,20 @@ export default class NewsViewer extends React.Component {
   render() {
     return (
       <Box>
-        <Heading as="h1" bg="aqua" textAlign="center">News Reader</Heading>
+        <Heading as="h1" bg="aqua" textAlign="center">
+          Newsreader
+        </Heading>
         <Flex>
           <Flex direction="column" width="30%" maxW="30%" mx={2}>
             <Flex>
-              <NewsSources sourceChanged={this.sourceChanged}></NewsSources>
+              <NewsSources
+                sources={this.props.sources}
+                sourceChanged={this.sourceChanged}
+              ></NewsSources>
             </Flex>
             <Flex>
               <HeadlineView
+                articles={this.props.headlines}
                 sourceId={this.state.sourceId}
                 headlineChanged={this.headlineChanged}
               ></HeadlineView>
@@ -54,3 +70,14 @@ export default class NewsViewer extends React.Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  const { sources, headlines } = state;
+
+  return {
+    sources: sources.items || [],
+    headlines: headlines.items || []
+  };
+}
+
+export default connect(mapStateToProps)(NewsViewer);
