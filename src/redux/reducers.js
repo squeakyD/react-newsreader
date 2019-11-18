@@ -2,8 +2,7 @@ import {
   REQUEST_SOURCES,
   RECEIVE_SOURCES,
   REQUEST_HEADLINES,
-  RECEIVE_HEADLINES,
-  //SELECT_HEADLINE
+  RECEIVE_HEADLINES
 } from "./actions";
 import { combineReducers } from "redux";
 
@@ -22,7 +21,9 @@ const initState = {
   }
 };
 
-function sources(state = initState, action) {
+// Separate reducer functions for each top node in the state
+
+function sources(state = initState.sources, action) {
   switch (action.type) {
     case REQUEST_SOURCES:
       return Object.assign({}, { isFetching: true });
@@ -40,7 +41,7 @@ function sources(state = initState, action) {
   }
 }
 
-function headlines(state = initState, action) {
+function headlines(state = initState.headlines, action) {
   switch (action.type) {
     case REQUEST_HEADLINES:
       return Object.assign({}, { isFetching: true });
@@ -51,13 +52,8 @@ function headlines(state = initState, action) {
         lastUpdated: Date.now()
       });
 
-    // // Not sure if we need this
-    // case SELECT_HEADLINE:
-    //   break;
-
     default:
       return state;
-    //break;
   }
 }
 

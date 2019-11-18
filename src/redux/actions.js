@@ -5,7 +5,6 @@ export const REQUEST_SOURCES = "REQUEST_SOURCES";
 export const REQUEST_HEADLINES = "REQUEST_HEADLINES";
 export const RECEIVE_SOURCES = "RECEIVE_SOURCES";
 export const RECEIVE_HEADLINES = "RECEIVE_HEADLINES";
-export const SELECT_HEADLINE = "SELECT_HEADLINE";
 
 const requestSources = () => ({
   type: REQUEST_SOURCES,
@@ -49,7 +48,39 @@ export function fetchSources() {
   };
 }
 
-export function fetchHeadlines(sourceId) {
+
+export function fetchHeadlinesIfNeeded(sourceId) {
+  return (dispatch, getState) => {
+    if (shouldFetchHeadlines(getState(), sourceId)) {
+      return dispatch(fetchHeadlines(sourceId));
+    }
+  }
+}
+
+function shouldFetchHeadlines(state, sourceId) {
+  const headlines = state.headlines;
+  if (!headlines.items) {
+    return true;
+  } else if (headlines.isFetching) {
+    return false;
+  } else {
+    const existsForSource = headlines.items.find(i => i.source.id === sourceId) !== undefined;
+    if (!existsForSource) {
+      return true;
+    }
+
+    const secondsDiff = (Date.now() - headlines.lastUpdated) / 1000;
+    const expired = secondsDiff > 600; // 10 mins
+
+    if (expired) {
+      console.log('Fetching headlines as timeout expired')
+    }
+
+    return expired;
+  }
+}
+
+function fetchHeadlines(sourceId) {
   return function (dispatch) {
     dispatch(requestHeadlines(sourceId));
 

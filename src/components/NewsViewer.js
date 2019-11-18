@@ -5,7 +5,7 @@ import { Flex, Box, Heading } from "@chakra-ui/core";
 import { NewsSources } from "./NewsSources";
 import HeadlineView from "./HeadlineView";
 import ArticleView from "./ArticleView";
-import { fetchSources, fetchHeadlines } from "../redux/actions";
+import { fetchSources, fetchHeadlinesIfNeeded } from "../redux/actions";
 
 class NewsViewer extends React.Component {
   constructor(props) {
@@ -30,7 +30,7 @@ class NewsViewer extends React.Component {
     this.setState({ sourceId: val, article: null });
 
     const { dispatch } = this.props;
-    dispatch(fetchHeadlines(val))
+    dispatch(fetchHeadlinesIfNeeded(val))
     console.log('Source id', val)
   }
 
@@ -47,7 +47,7 @@ class NewsViewer extends React.Component {
           Newsreader
         </Heading>
         <Flex>
-          <Flex direction="column" width="30%" maxW="30%" mx={2}>
+          <Flex direction="column" width="30%" maxW="30%" ml={1} mr={2}>
             <Flex>
               <NewsSources
                 sources={this.props.sources}
@@ -71,6 +71,8 @@ class NewsViewer extends React.Component {
   }
 }
 
+// Receives state updates from Redux and maps it to the props required by the
+// NewsViewer component
 function mapStateToProps(state) {
   const { sources, headlines } = state;
 
@@ -80,4 +82,5 @@ function mapStateToProps(state) {
   };
 }
 
+// Connect NewsViewer to Redux store.  See https://react-redux.js.org/api/connect
 export default connect(mapStateToProps)(NewsViewer);
